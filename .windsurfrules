@@ -35,3 +35,8 @@
 * Don't mock data except for tests
 * Exhaust all options using existing implementations before introducing new patterns
 * If introducing a new pattern to replace an old one, remove the old implementation
+
+**Development Environment**
+
+* Windows 11 
+* Do not use && in powershell commands
