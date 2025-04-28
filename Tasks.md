@@ -9,7 +9,7 @@
     npm init vite@latest openRetic -- --template react
     ```
 - [ ] **Install dependencies**  
-  - React, Vite  
+  - React LTS (18.2), Vite  
   - Tailwind CSS  
   - shadcn/ui components  
   - **Calendar / Scheduler**  
