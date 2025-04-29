@@ -8,12 +8,16 @@
 
 ## Technical Patterns
 - Reactive state management using React hooks and Context API.
+- Timer-driven state logic for all time-based controls (manual runs, snooze), using setInterval and effect hooks.
 - RESTful API communication with the ESP32 using JSON payloads.
 - Offline-first design with caching and error handling for network issues.
+- Responsive UI patterns using Tailwind's responsive utilities for navigation and controls.
 
 ## Component Relationships
 - Dashboard UI binds to the scheduleData object to reflect real-time status and control state.
+- Per-zone manual controls and snooze controls are decoupled and timer-driven, updating UI and state independently.
 - Service layer handles HTTP communications between the frontend and ESP32.
+- NavBar is now fully responsive and adapts to mobile/desktop layouts.
 - Scheduler component integrates with manual control and calendar/scheduler UI elements.
 
 ## Implementation Paths

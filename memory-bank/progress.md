@@ -1,28 +1,31 @@
-# Project Progress
+# Progress Update (2025-04-29)
 
 ## What Works
-- Repository initialized and project scaffold set up with Vite + React.
-- Basic project structure implemented and memory bank established.
-- Initial project documentation capturing requirements and design established.
+- Zone cards display correctly with real-time manual run status and controls.
+- Manual start/stop is now consistent: blue Start button, blue countdown/cancel button when running.
+- Each zone's manual run timer auto-resets and updates the UI when elapsed.
+- Snooze control is implemented with a modal, live countdown, and cancel functionality. Snooze resets automatically when time elapses.
+- NavBar is now fully responsive: stacks vertically on mobile, horizontal on desktop.
+- UI is clean and focused: removed unnecessary debug, titles, and descriptions per user feedback.
 
-## What's Left to Build
-- Dashboard UI with reactive controls for irrigation zones.
-- Integration with ESP32 for manual control, scheduling, and snooze functionality.
-- Complete offline functionality testing and PWA service worker implementation.
+## What's Left / Next Steps
+- Add refresh button for schedule/zone state.
+- Implement schedule viewer and editor per PRD.
+- Integrate with backend/ESP32 API for real device control (currently demo mode only).
+- Add tests for state logic and UI.
 
-## Current Status
-- The codebase is currently in a UI demo/testing state, with no business logic, PWA service worker, or ESP32 integration yet implemented.
-- The Demo component is a temporary test for Tailwind and shadcn/ui integration.
-- In design and planning phase for core functionalities.
+## Learnings
+- Timer-based state management (for snooze and manual runs) is robust and keeps UI in sync.
+- Consistent button design and embedded timers improve clarity and usability.
+- Responsive design is critical for mobile usability; Tailwind's responsive utilities are effective for rapid fixes.
+- Removing extra UI elements helps users focus on core controls.
 
-## Known Issues
-- Detailed integration requirements with ESP32 yet to be finalized.
-- Offline behavior and performance tuning pending further testing.
+## Issues
+- No major blockers. All implemented features are working as intended in demo mode.
 
-## Evolution of Decisions
-- Iterative development with continuous integration of frontend and hardware communication.
-- Early prioritization of offline-first capabilities and responsive design.
+## Decisions
+- Use context-based state for rapid prototyping and UI feedback.
+- Favor simplicity and clarity in UI and controls.
 
 ---
-
-**Last Updated:** 2025-04-29
+This update reflects the current state of the openRetic PWA as of April 29, 2025.

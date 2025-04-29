@@ -1,30 +1,33 @@
-# Active Context
+# Active Context (2025-04-29)
 
 ## Current Focus
-- The codebase is currently in a UI demo/testing state. Only Tailwind CSS and shadcn/ui integration have been verified via a Demo component.
-- No business logic, PWA service worker, or ESP32 integration is present yet.
-- Planned: Setting up and integrating the Vite + React scaffold, PWA configuration including manifest and service worker, and initial UI components with Tailwind CSS and shadcn/ui.
-- Planned: Implementing reactive binding for the scheduleData object and integrating manual and snooze functionalities.
+- Robust, timer-driven controls for manual zone activation and snooze, with live countdowns and auto-reset.
+- Clean, distraction-free UI: only essential controls and feedback are visible.
+- Responsive design for all navigation and controls, ensuring mobile usability.
 
 ## Recent Changes
-- Repository initialization and project scaffolding completed using Vite + React.
-- Basic UI and file structure established.
-- Initial planning for integration with ESP32 HTTP endpoints accomplished.
+- Refactored Dashboard UI: removed debug/readout, titles, and descriptions for clarity.
+- Manual zone control: blue Start button, blue countdown/cancel button when active.
+- Per-zone timer logic for auto-reset of manual runs.
+- Snooze control: modal for duration, live countdown/cancel button.
+- NavBar: fully responsive for mobile and desktop.
 
 ## Next Steps
-- Develop the Zone Dashboard with real-time status and controls.
-- Integrate calendar/scheduler functionality.
-- Test offline capabilities and PWA behavior.
+- Add refresh button for zone/schedule state.
+- Build out schedule viewer/editor per PRD.
+- Prepare for backend/ESP32 integration.
+- Add tests for UI and timer logic.
 
 ## Active Decisions
-- Use Vite + React as the primary development stack.
-- Implement reactive state management using React hooks and Context API.
-- Employ Tailwind CSS and shadcn/ui for UI development.
+- Use timer-driven state updates for all time-based controls.
+- UI surfaces only essential controls and feedback for clarity.
+- Responsive design is mandatory for all navigation and control elements.
 
 ## Learnings
-- Reactive state management is critical for real-time updates.
-- Offline-first PWA design requires thorough testing.
+- Timer-based state management (for snooze and manual runs) keeps UI and state in sync.
+- Consistent button design and embedded timers improve clarity and usability.
+- Responsive design is critical for mobile usability; Tailwind's responsive utilities are effective for rapid fixes.
+- Removing extra UI elements helps users focus on core controls.
 
 ---
-
-**Last Updated:** 2025-04-29
+This update reflects the current active context for the openRetic PWA as of April 29, 2025.
