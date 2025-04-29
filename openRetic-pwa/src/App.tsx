@@ -1,7 +1,8 @@
-import Demo from "@/pages/Demo";
+import React from "react";
+import AppRoutes from "./AppRoutes";
 
 function App() {
-  return <Demo />;
+  return <AppRoutes />;
 }
 
 export default App;
