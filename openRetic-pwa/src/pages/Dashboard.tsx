@@ -27,13 +27,17 @@ function getManualCountdown(manualUntil: string | null): string | null {
 }
 
 const Dashboard = () => {
-  const { scheduleData, setScheduleData } = useAppState();
+  const { scheduleData, setScheduleData, connectionState, setConnectionState } = useAppState();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
   const [snoozeModalOpen, setSnoozeModalOpen] = useState(false);
   const snoozeUntil = scheduleData.system.snooze_until;
   const [snoozeCountdown, setSnoozeCountdown] = useState<string | null>(getSnoozeCountdown(snoozeUntil));
   const [manualCountdowns, setManualCountdowns] = useState<Record<number, string | null>>({});
+  // Refresh button state
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState<string | null>(null);
+  const [refreshMsgType, setRefreshMsgType] = useState<'success' | 'error' | null>(null);
 
   // Update snooze countdown every second
   useEffect(() => {
@@ -117,60 +121,122 @@ const Dashboard = () => {
     });
   };
 
+  // --- Refresh logic ---
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    setRefreshMsg(null);
+    try {
+      const endpoint = localStorage.getItem("esp32_endpoint") || "http://openRetic.local/getSchedule";
+      // Implement timeout with AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const resp = await fetch(endpoint, { method: "GET", signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      setScheduleData(data);
+      setConnectionState("connected");
+      setRefreshMsg("Schedule refreshed successfully.");
+      setRefreshMsgType('success');
+    } catch (e) {
+      setConnectionState("demo");
+      setRefreshMsg("ESP32 unreachable. Switched to demo mode.");
+      setRefreshMsgType('error');
+    } finally {
+      setRefreshing(false);
+      setTimeout(() => {
+        setRefreshMsg(null);
+        setRefreshMsgType(null);
+      }, 3000);
+    }
+  };
+
+
   return (
     <div className="p-8">
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <h2 className="font-semibold text-lg mb-4">Zones</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {scheduleData.system.zones.map((zone) => {
-            const isActive = zone.active;
-            const isManual = !!zone.manual_until;
-            return (
-              <div
-                key={zone.id}
-                className={`rounded-lg border p-4 shadow transition-all flex flex-col items-start gap-2 ${
-                  isActive ? "bg-green-100 border-green-400" : "bg-white border-gray-300"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{zone.name}</span>
-                  {isActive && (
-                    <span className="ml-2 px-2 py-0.5 text-xs rounded bg-green-500 text-white">Active</span>
-                  )}
-                  {isManual && (
-                    <span className="ml-2 px-2 py-0.5 text-xs rounded bg-blue-500 text-white">Manual</span>
-                  )}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Zone #{zone.id}
-                </div>
-
-                <div className="flex gap-2 mt-2">
-                  {!isActive ? (
-                    <button
-                      className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                      onClick={() => handleStartClick(zone.id)}
-                    >
-                      Start
-                    </button>
-                  ) : (
-                    <button
-                      className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2"
-                      onClick={() => handleManualStop(zone.id)}
-                    >
-                      {manualCountdowns[zone.id] ? (
-                        <span>{manualCountdowns[zone.id]}</span>
-                      ) : (
-                        <span>Running</span>
-                      )}
-                      <span className="ml-2">(Cancel)</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <button
+          className="ml-4 p-2 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50 flex items-center"
+          title="Refresh schedule"
+          onClick={handleRefresh}
+          disabled={refreshing}
+        >
+          {refreshing ? (
+            // Simple spinner
+            <svg className="animate-spin h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z" />
+            </svg>
+          ) : (
+            // Refresh icon
+            <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582M20 20v-5h-.581M19.418 9A7.977 7.977 0 0012 4c-4.418 0-8 3.582-8 8m16 0c0 4.418-3.582 8-8 8a7.977 7.977 0 01-7.418-5" />
+            </svg>
+          )}
+        </button>
+      </div>
+      {refreshMsg && (
+        <div
+          className={`mb-4 text-sm text-center rounded p-2 ${
+            refreshMsgType === 'error'
+              ? 'text-red-700 bg-red-100'
+              : 'text-blue-700 bg-blue-100'
+          }`}
+        >
+          {refreshMsg}
+          {/* TODO: Replace with toast/notification system */}
         </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {scheduleData.system.zones.map((zone) => {
+          const isActive = zone.active;
+          const isManual = !!zone.manual_until;
+          return (
+            <div
+              key={zone.id}
+              className={`rounded-lg border p-4 shadow transition-all flex flex-col items-start gap-2 ${
+                isActive ? "bg-green-100 border-green-400" : "bg-white border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-lg">{zone.name}</span>
+                {isActive && (
+                  <span className="ml-2 px-2 py-0.5 text-xs rounded bg-green-500 text-white">Active</span>
+                )}
+                {isManual && (
+                  <span className="ml-2 px-2 py-0.5 text-xs rounded bg-blue-500 text-white">Manual</span>
+                )}
+              </div>
+              <div className="text-sm text-gray-600">
+                Zone #{zone.id}
+              </div>
+
+              <div className="flex gap-2 mt-2">
+                {!isActive ? (
+                  <button
+                    className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                    onClick={() => handleStartClick(zone.id)}
+                  >
+                    Start
+                  </button>
+                ) : (
+                  <button
+                    className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2"
+                    onClick={() => handleManualStop(zone.id)}
+                  >
+                    {manualCountdowns[zone.id] ? (
+                      <span>{manualCountdowns[zone.id]}</span>
+                    ) : (
+                      <span>Running</span>
+                    )}
+                    <span className="ml-2">(Cancel)</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
       <ManualControlModal
         open={modalOpen}

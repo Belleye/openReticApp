@@ -6,6 +6,7 @@
 - Scheduler libraries: @fullcalendar/react or react-big-calendar for scheduling functionalities.
 - Service workers for PWA offline support.
 - ESP32 for irrigation control using HTTP endpoints.
+- **Confirmed**: `@fullcalendar/react`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid` used for ScheduleViewer page.
 
 ## Development Setup
 - Repository scaffolded using Vite with a React template.
@@ -16,6 +17,7 @@
 - Reliable handling of offline scenarios.
 - Time synchronization between client local time and UTC for API interactions.
 - Responsive design requirements for various device sizes.
+- **Potential Challenge**: Integrating FullCalendar's default styling seamlessly with custom themes (e.g., dark mode) or UI libraries (Tailwind/shadcn) may require specific CSS overrides or configuration.
 
 ## Dependencies
 - React 18.2
@@ -23,6 +25,7 @@
 - Tailwind CSS
 - shadcn/ui components
 - Scheduler library: @fullcalendar/react or react-big-calendar.
+- **Confirmed**: `@fullcalendar/react`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`.
 
 ## Tool Usage Patterns
 - Code is divided into modular, reusable components.

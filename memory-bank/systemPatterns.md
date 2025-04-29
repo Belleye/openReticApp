@@ -12,6 +12,9 @@
 - RESTful API communication with the ESP32 using JSON payloads.
 - Offline-first design with caching and error handling for network issues.
 - Responsive UI patterns using Tailwind's responsive utilities for navigation and controls.
+- FullCalendar used for interactive schedule visualization.
+- Separate, focused modal components for Add (`AddScheduleModal`) and Edit/Delete (`EditScheduleModal`) operations.
+- Passing original data array index via `extendedProps` in FullCalendar events to link UI interactions back to the source data.
 
 ## Component Relationships
 - Dashboard UI binds to the scheduleData object to reflect real-time status and control state.
@@ -19,6 +22,7 @@
 - Service layer handles HTTP communications between the frontend and ESP32.
 - NavBar is now fully responsive and adapts to mobile/desktop layouts.
 - Scheduler component integrates with manual control and calendar/scheduler UI elements.
+- `ScheduleViewer` component integrates FullCalendar, Add/Edit modals, and manages local schedule state updates.
 
 ## Implementation Paths
 - Iterative development, starting with UI scaffolding followed by backend integration.
