@@ -14,12 +14,13 @@
 - Add Schedule modal allows creation of new schedule entries (updates local state).
 - Edit Schedule modal allows modification/deletion of existing entries via calendar event click (updates local state).
 - Full UI CRUD operations for schedule management (local state only) are complete.
+- Full schedule API integration complete:
+  - `fetchSchedule` correctly reads from `/getSchedule`, converting UTC times to local and durations from seconds to minutes.
+  - `saveFullSchedule` correctly writes the entire `{ schedule, system }` object to `/postSchedule`, converting local times to UTC and durations from minutes to seconds.
+  - Add, Modify, and Delete actions in `ScheduleViewer` persist changes via the API using optimistic updates with rollback.
 
 ## What's Left / Next Steps
 - Implement schedule viewer and editor per PRD.
-- Integrate schedule Add/Modify/Delete actions with backend API (`apiService.ts`).
-- Define/implement necessary API service functions (`updateScheduleEntry`, `deleteScheduleEntry`).
-- Determine state update strategy post-API call (re-fetch vs. optimistic).
 - Integrate with backend/ESP32 API for real device control (currently demo mode only).
 - Add tests for state logic and UI.
 - *Consider replacing inline refresh messages with a toast/notification system.*
@@ -29,13 +30,18 @@
 - Consistent button design and embedded timers improve clarity and usability.
 - Responsive design is critical for mobile usability; Tailwind's responsive utilities are effective for rapid fixes.
 - Removing extra UI elements helps users focus on core controls.
+- FullCalendar integration provides good schedule visualization.
+- Correct time/duration conversions (`apiService`) are essential for API communication.
+- API endpoint `/postSchedule` requires the full `{ schedule, system }` payload for saving.
 
 ## Issues
 - No major blockers. All implemented features are working as intended in demo mode.
+- **New Potential Issue**: Events scheduled for Sunday may not be rendering correctly in the calendar view.
 
 ## Decisions
 - Use context-based state for rapid prototyping and UI feedback.
 - Favor simplicity and clarity in UI and controls.
+- Use optimistic UI updates for schedule modifications.
 
 ---
 This update reflects the current state of the openRetic PWA as of April 29, 2025.

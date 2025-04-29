@@ -40,7 +40,7 @@ const EditScheduleModal: React.FC<EditScheduleModalProps> = ({ isOpen, onClose, 
         setPattern((scheduleEntry.pattern as 'odd' | 'even') || '');
         setDate(scheduleEntry.date || '');
         setStartTime(scheduleEntry.start);
-        setDuration(scheduleEntry.duration / 60); // Convert seconds to minutes for display
+        setDuration(scheduleEntry.duration); // Duration from prop is already in minutes
     } else if (!isOpen) {
         // Optionally clear form on close, though reopening usually repopulates
     }
@@ -70,7 +70,7 @@ const EditScheduleModal: React.FC<EditScheduleModalProps> = ({ isOpen, onClose, 
         zone: parseInt(zone, 10),
         type,
         start: startTime || '00:00', 
-        duration: (duration || 0) * 60, 
+        duration: duration || 0, // Pass duration in minutes as entered in the form
         // Clear out conditional props not relevant to the current type
         days: type === 'weekday' ? days : undefined,
         pattern: type === 'daytype' ? pattern : undefined,

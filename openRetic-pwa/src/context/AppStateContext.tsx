@@ -15,6 +15,7 @@ export type SystemState = {
 };
 
 export type ScheduleEntry = {
+  id?: number | string; // Add optional ID for backend integration
   zone: number;
   type: "weekday" | "daytype" | "once";
   days?: string[];
@@ -33,7 +34,8 @@ export type ConnectionState = "connected" | "disconnected" | "demo";
 
 interface AppState {
   scheduleData: ScheduleData;
-  setScheduleData: (data: ScheduleData) => void;
+  // Use React's Dispatch type for state setters
+  setScheduleData: React.Dispatch<React.SetStateAction<ScheduleData>>;
   connectionState: ConnectionState;
   setConnectionState: (state: ConnectionState) => void;
 }
