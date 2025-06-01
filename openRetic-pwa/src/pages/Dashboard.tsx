@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useAppState } from "@/context/AppStateContext";
+import { saveFullSchedule } from "@/services/apiService"; // Changed import from startManualZone to saveFullSchedule
+import { useAppState, ScheduleData } from "@/context/AppStateContext"; // Added ScheduleData import
 import ManualControlModal from "@/components/ManualControlModal";
 import SnoozeModal from "@/components/SnoozeModal";
 
@@ -89,11 +90,16 @@ const Dashboard = () => {
   };
 
   // Start manual mode for a zone
-  const handleManualStart = (durationMinutes: number) => {
+  const handleManualStart = async (durationMinutes: number) => { // Made async
     if (selectedZone == null) return;
+    const originalZoneState = scheduleData.system.zones.find(z => z.id === selectedZone);
+
     const now = new Date();
-    const until = new Date(now.getTime() + durationMinutes * 60000).toISOString();
-    setScheduleData({
+    // manual_until should be a UTC ISO string, which toISOString() provides.
+    const until = new Date(now.getTime() + durationMinutes * 60000).toISOString(); 
+
+    // Create the new state object with the updated zone
+    const updatedScheduleData: ScheduleData = {
       ...scheduleData,
       system: {
         ...scheduleData.system,
@@ -103,7 +109,31 @@ const Dashboard = () => {
             : z
         ),
       },
-    });
+    };
+
+    // Optimistic UI update
+    setScheduleData(updatedScheduleData);
+
+    try {
+      // Send the entire updated schedule data to the backend
+      await saveFullSchedule(updatedScheduleData);
+      console.log(`[Dashboard] Manual start for zone ${selectedZone} successful. Full schedule saved.`);
+    } catch (error) {
+      console.error(`[Dashboard] Failed to start manual zone ${selectedZone} or save schedule:`, error);
+      alert(`Error: Could not apply manual start for zone ${selectedZone}. Please check connection and try again.`);
+      // Revert optimistic update if API call fails
+      if (originalZoneState) {
+        setScheduleData(prevData => ({
+          ...prevData, // Use prevData to ensure we're reverting from the current state if multiple quick actions occurred
+          system: {
+            ...prevData.system,
+            zones: prevData.system.zones.map((z) =>
+              z.id === selectedZone ? originalZoneState : z
+            ),
+          },
+        }));
+      }
+    }
   };
 
   // Stop manual mode for a zone
