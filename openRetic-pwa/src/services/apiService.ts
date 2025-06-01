@@ -75,16 +75,16 @@ export async function fetchSchedule(): Promise<ScheduleEntry[]> {
 
     // Get the user's local timezone
     const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
+    console.log('Local timezone:', localTimeZone);
     // Process each entry: convert time zones and duration unit
     return rawScheduleEntries.map(entry => {
       try {
         // Convert UTC start time string from ESP32 to local Date object
         const utcDate = toZonedTime(`${entry.date || format(new Date(), 'yyyy-MM-dd')}T${entry.start}:00`, 'UTC');
-        
+        console.log('UTC Date:', utcDate);
         // Convert UTC Date object to local Date object
         const localDate = toZonedTime(utcDate, localTimeZone);
-        
+        console.log('Local Date:', localDate);
         // Format the local Date object back to HH:mm string
         // Removed { timeZone: localTimeZone } option to fix lint error
         // The localDate object is already in the correct zone.

@@ -2,51 +2,74 @@ $body = @"
 {
   "schedule": [
     {
+      "zone": 1,
+      "type": "weekday",
+      "start": "21:00",
+      "duration": 3600,
+      "days": [
+        "Sun"
+      ],
+      "id": "1748749937106"
+    },
+    {
+      "zone": 2,
+      "type": "weekday",
+      "start": "22:00",
+      "duration": 3600,
+      "days": [
+        "Sun"
+      ],
+      "id": "1748752870977"
+    },
+    {
       "zone": 3,
-      "type": "once",
-      "date": "2025-05-29",
-      "start": "05:30",
-      "duration": 300
+      "type": "weekday",
+      "start": "23:00",
+      "duration": 3600,
+      "days": [
+        "Sun"
+      ],
+      "id": "1748752899963"
+    },
+    {
+      "zone": 4,
+      "type": "weekday",
+      "start": "00:00",
+      "duration": 3600,
+      "days": [
+        "Sun"
+      ],
+      "id": "1748752928980"
     },
     {
       "zone": 7,
       "type": "weekday",
-      "start": "22:01",
-      "duration": 900,
+      "start": "01:00",
+      "duration": 3600,
       "days": [
         "Sun"
       ],
-      "id": "1745901728382"
+      "id": "1748753196336"
     },
     {
-      "zone": 1,
+      "zone": 5,
       "type": "weekday",
-      "start": "06:00",
-      "duration": 0,
+      "start": "02:00",
+      "duration": 3600,
       "days": [
-        "Mon"
+        "Sun"
       ],
-      "id": "1748749272738"
+      "id": "1748753518305"
     },
     {
-      "zone": 1,
+      "zone": 6,
       "type": "weekday",
-      "start": "22:00",
-      "duration": 900,
+      "start": "03:00",
+      "duration": 3600,
       "days": [
-        "Fri"
+        "Sun"
       ],
-      "id": "1748749580899"
-    },
-    {
-      "zone": 1,
-      "type": "weekday",
-      "start": "06:00",
-      "duration": 900,
-      "days": [
-        "Thu"
-      ],
-      "id": "1748749937106"
+      "id": "1748753543828"
     }
   ],
   "system": {
