@@ -137,18 +137,45 @@ const Dashboard = () => {
   };
 
   // Stop manual mode for a zone
-  const handleManualStop = (zoneId: number) => {
-    setScheduleData({
+  const handleManualStop = async (zoneId: number) => {
+    const originalZoneState = scheduleData.system.zones.find(z => z.id === zoneId);
+
+    // Create the new state object with the updated zone (stopped)
+    const updatedScheduleData: ScheduleData = {
       ...scheduleData,
       system: {
         ...scheduleData.system,
         zones: scheduleData.system.zones.map((z) =>
           z.id === zoneId
-            ? { ...z, active: false, manual_until: null }
+            ? { ...z, active: false, manual_until: null } // Set active to false and manual_until to null
             : z
         ),
       },
-    });
+    };
+
+    // Optimistic UI update
+    setScheduleData(updatedScheduleData);
+
+    try {
+      // Send the entire updated schedule data to the backend
+      await saveFullSchedule(updatedScheduleData);
+      console.log(`[Dashboard] Manual stop for zone ${zoneId} successful. Full schedule saved.`);
+    } catch (error) {
+      console.error(`[Dashboard] Failed to stop manual zone ${zoneId} or save schedule:`, error);
+      alert(`Error: Could not apply manual stop for zone ${zoneId}. Please check connection and try again.`);
+      // Revert optimistic update if API call fails
+      if (originalZoneState) {
+        setScheduleData(prevData => ({
+          ...prevData,
+          system: {
+            ...prevData.system,
+            zones: prevData.system.zones.map((z) =>
+              z.id === zoneId ? originalZoneState : z
+            ),
+          },
+        }));
+      }
+    }
   };
 
   // --- Refresh logic ---
