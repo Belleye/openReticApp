@@ -11,9 +11,9 @@
 - Connection status reflected in UI: NavBar title shows "(Disconnected - Demo Mode)" when disconnected.
 - Schedule Viewer page implemented using FullCalendar.
 - Calendar displays events generated based on schedule entries.
-- Add Schedule modal allows creation of new schedule entries (updates local state).
-- Edit Schedule modal allows modification/deletion of existing entries via calendar event click (updates local state).
-- Full UI CRUD operations for schedule management (local state only) are complete.
+- Add Schedule modal allows creation of new schedule entries.
+- Edit Schedule modal allows modification/deletion of existing entries via calendar event click.
+- Full UI CRUD operations for schedule management are complete and integrated with the API.
 - Full schedule API integration complete:
   - `fetchSchedule` correctly reads from `/getSchedule`, converting UTC times to local and durations from seconds to minutes.
   - `saveFullSchedule` correctly writes the entire `{ schedule, system }` object to `/postSchedule`, converting local times to UTC and durations from minutes to seconds.
@@ -21,10 +21,10 @@
   - Fixed duration display in calendar events to consistently show minutes throughout the UI while maintaining seconds in the API.
 
 ## What's Left / Next Steps
-- Implement schedule viewer and editor per PRD.
-- Integrate with backend/ESP32 API for real device control (currently demo mode only).
-- Add tests for state logic and UI.
-- *Consider replacing inline refresh messages with a toast/notification system.*
+- Implement Settings page to manage zone colors and other preferences
+- Integrate with backend/ESP32 API for real device control (currently demo mode only)
+- Add tests for state logic and UI
+- *Consider replacing inline refresh messages with a toast/notification system*
 
 ## Learnings
 - Timer-based state management (for snooze and manual runs) is robust and keeps UI in sync.
@@ -34,6 +34,7 @@
 - FullCalendar integration provides good schedule visualization.
 - Correct time/duration conversions (`apiService`) are essential for API communication. The API expects durations in seconds while the UI displays them in minutes.
 - API endpoint `/postSchedule` requires the full `{ schedule, system }` payload for saving.
+- Zone color support has been added to the API and can be stored/retrieved successfully.
 
 ## Issues
 - No major blockers. All implemented features are working as intended in demo mode.
@@ -45,4 +46,10 @@
 - Use optimistic UI updates for schedule modifications.
 
 ---
+## New Requirements
+- Zone colors are now supported in the API and should be displayed in the Schedule Viewer
+  - Each zone has a `color` field (hex code) in the `system.zones` array
+  - Default colors have been assigned but should be user-configurable
+  - Colors should be used consistently across the UI to identify zones
+
 This update reflects the current state of the openRetic PWA as of June 1, 2025.
