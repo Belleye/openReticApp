@@ -6,6 +6,7 @@ export type Zone = {
   name: string;
   active: boolean;
   manual_until: string | null;
+  color: string; // Added for zone-specific event colors
 };
 
 export type SystemState = {
@@ -69,13 +70,13 @@ const sampleSchedule: ScheduleData = {
     snooze_until: "2025-04-13T10:09:28Z",
     last_updated: "2025-04-12T10:09:28Z",
     zones: [
-      { id: 1, name: "Front Lawn", active: false, manual_until: null },
-      { id: 2, name: "Back Yard", active: false, manual_until: null },
-      { id: 3, name: "Garden", active: true, manual_until: "2025-04-13T12:30:00Z" },
-      { id: 4, name: "Side Yard", active: false, manual_until: null },
-      { id: 5, name: "Flower Beds", active: false, manual_until: null },
-      { id: 6, name: "Vegetable Garden", active: false, manual_until: null },
-      { id: 7, name: "Patio Plants", active: false, manual_until: null },
+      { id: 1, name: "Front Lawn", active: false, manual_until: null, color: "#3B82F6" }, // Default Blue
+      { id: 2, name: "Back Yard", active: false, manual_until: null, color: "#10B981" }, // Default Green
+      { id: 3, name: "Garden", active: true, manual_until: "2025-04-13T12:30:00Z", color: "#F59E0B" }, // Default Amber
+      { id: 4, name: "Side Yard", active: false, manual_until: null, color: "#6366F1" }, // Default Indigo
+      { id: 5, name: "Flower Beds", active: false, manual_until: null, color: "#EC4899" }, // Default Pink
+      { id: 6, name: "Vegetable Garden", active: false, manual_until: null, color: "#8B5CF6" }, // Default Purple
+      { id: 7, name: "Patio Plants", active: false, manual_until: null, color: "#D97706" }  // Default Orange
     ],
   },
 };

@@ -161,6 +161,14 @@ const ScheduleViewer: React.FC = () => {
     const today = startOfDay(new Date());
     const rangeEnd = addDays(today, 7);
 
+    // Create a map from zone ID to color for quick lookup
+    const zoneIdToColorMap = system.zones.reduce((acc, zone) => {
+      if (zone.id && zone.color) {
+        acc[zone.id] = zone.color;
+      }
+      return acc;
+    }, {} as { [key: number]: string });
+
     const getZoneName = (zoneId: number): string => {
       const zone = system.zones.find(z => z.id === zoneId);
       return zone ? zone.name : `Zone ${zoneId}`;
@@ -169,9 +177,10 @@ const ScheduleViewer: React.FC = () => {
     schedule.forEach((entry, index) => {
       if (!entry.start) return; // Skip entries without start time
 
-      // Convert duration from seconds to minutes for display
-      const durationInMinutes = Math.round(entry.duration * 1);
+      // entry.duration is already in minutes from fetchSchedule
+      const durationInMinutes = Math.round(entry.duration);
       const title = `${getZoneName(entry.zone)} (${durationInMinutes} min)`;
+      const eventColor = zoneIdToColorMap[entry.zone] || '#3788d8'; // Default color if not found
       const [hours, minutes] = entry.start.split(':').map(Number);
       const eventId = `${entry.id || `temp-${index}`}`; // Use real ID if available, else temp
 
@@ -185,8 +194,8 @@ const ScheduleViewer: React.FC = () => {
             start: startDate, 
             end: endDate,
             extendedProps: { originalIndex: index, entryData: entry },
-            backgroundColor: '#3788d8', // Example color
-            borderColor: '#3788d8'
+            backgroundColor: eventColor,
+            borderColor: eventColor
           });
         } catch (e) {
           console.error("Error parsing date for 'once' event:", entry, e);
@@ -200,9 +209,10 @@ const ScheduleViewer: React.FC = () => {
             startTime: entry.start, // 'HH:mm' format
             duration: { minutes: durationInMinutes }, // Use minutes for FullCalendar
             daysOfWeek: daysOfWeek, // Array of day numbers [0-6]
-            extendedProps: { originalIndex: index, entryData: entry },
-            backgroundColor: '#10B981', // Different color for recurring
-            borderColor: '#10B981'
+            allDay: false,
+            extendedProps: { originalIndex: index, entryData: entry }, // Store original index
+            backgroundColor: eventColor,
+            borderColor: eventColor
           });
         }
       } else if (entry.type === 'daytype' && entry.pattern) {
@@ -257,6 +267,7 @@ const ScheduleViewer: React.FC = () => {
               right: ''
             }}
             events={events}
+            timeZone="local"
             allDaySlot={false}
             slotMinTime="00:00:00"
             slotMaxTime="24:00:00"

@@ -64,7 +64,7 @@ const AddScheduleModal: React.FC<AddScheduleModalProps> = ({ isOpen, onClose, zo
         zone: parseInt(zone, 10),
         type,
         start: startTime || '00:00', // Provide default if empty
-        duration: (duration || 0) * 60, // Convert minutes to seconds, handle potential NaN
+        duration: duration || 0, // Pass duration in minutes
     };
 
     // Add conditional properties

@@ -1,6 +1,6 @@
 import { ScheduleEntry, ScheduleData } from '@/context/AppStateContext';
 // Import date-fns and date-fns-tz functions
-import { format, parse, setHours, setMinutes, setSeconds, startOfDay } from 'date-fns';
+import { format, parse, setHours, setMinutes, setSeconds, startOfDay, parseISO } from 'date-fns';
 // Use toZonedTime for reading, formatInTimeZone for writing
 import { toZonedTime, formatInTimeZone } from 'date-fns-tz'; 
 
@@ -61,6 +61,7 @@ type ApiScheduleResponse = {
 };
 
 // Function to fetch all schedule entries
+// Function to fetch all schedule entries
 export async function fetchSchedule(): Promise<ScheduleEntry[]> {
     // Get schedule object from ESP32
     // Expect the API to return an object like { schedule: [...], system: {...} }
@@ -73,42 +74,49 @@ export async function fetchSchedule(): Promise<ScheduleEntry[]> {
         return []; // Return empty array or throw error
     }
 
-    // Get the user's local timezone
     const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log('Local timezone:', localTimeZone);
-    // Process each entry: convert time zones and duration unit
+    console.log('[fetchSchedule] Detected local timezone:', localTimeZone);
+
     return rawScheduleEntries.map(entry => {
       try {
-        // Convert UTC start time string from ESP32 to local Date object
-        const utcDate = toZonedTime(`${entry.date || format(new Date(), 'yyyy-MM-dd')}T${entry.start}:00`, 'UTC');
-        console.log('UTC Date:', utcDate);
-        // Convert UTC Date object to local Date object
-        const localDate = toZonedTime(utcDate, localTimeZone);
-        console.log('Local Date:', localDate);
-        // Format the local Date object back to HH:mm string
-        // Removed { timeZone: localTimeZone } option to fix lint error
-        // The localDate object is already in the correct zone.
-        const localStartTimeString = format(localDate, 'HH:mm');
+        // Calculate localStartTimeString from entry.start (UTC time)
+        const [apiHours, apiMinutes] = entry.start.split(':').map(Number);
+        // Use a fixed reference date for UTC to create a Date object, then convert to local time zone.
+        // This helps in consistently getting the time part converted correctly.
+        const referenceUtcDateTime = new Date(Date.UTC(2000, 0, 2, apiHours, apiMinutes)); // Date.UTC parameters: year, month (0-indexed), day, hours, minutes
+        const localDateTimeForStartTime = toZonedTime(referenceUtcDateTime, localTimeZone);
+        const localStartTimeString = format(localDateTimeForStartTime, 'HH:mm');
 
-        // Convert duration from seconds (API) to minutes (PWA state)
-        const durationInMinutes = Math.round(entry.duration / 60); // Or Math.floor/ceil as needed
+        console.log(`[fetchSchedule] ID ${entry.id}: API start ${entry.start} UTC -> Local start ${localStartTimeString}`);
 
-        // Return the entry with local time string and convert duration from seconds (API) to minutes (UI)
+        let finalDate = entry.date; // For 'weekday' events, date is usually undefined or not primary.
+                                  // For 'once' events, this will be updated to the local date.
+
+        if (entry.type === 'once' && entry.date) {
+            // For 'once' events, convert the specific API date and UTC time to the user's local date and time.
+            const onceUtcDateTime = parseISO(`${entry.date}T${entry.start}:00Z`); // Ensure Z for UTC parsing
+            const onceLocalDateTime = toZonedTime(onceUtcDateTime, localTimeZone);
+            finalDate = format(onceLocalDateTime, 'yyyy-MM-dd'); // This is the local date
+            // localStartTimeString is already correctly calculated for the time part.
+            console.log(`[fetchSchedule] ID ${entry.id} (once): API date ${entry.date} & time ${entry.start} UTC -> Local date ${finalDate} & time ${localStartTimeString}`);
+        }
+        
+        const durationInMinutes = Math.round(entry.duration / 60);
+
+        // For 'weekday' events, entry.days is passed through from the API.
+        // For 'once' events, entry.days is typically undefined or not used by FullCalendar if a specific start/end date is given.
         return {
-          ...entry,
-          start: localStartTimeString,
-          duration: Math.round(entry.duration / 60), // Convert seconds to minutes for UI
-          date: entry.date ? format(localDate, 'yyyy-MM-dd') : undefined // Ensure date reflects local day if needed
+          ...entry, // This includes original entry.days
+          start: localStartTimeString, // Overwrites entry.start with local time string
+          date: finalDate, // Overwrites entry.date with local date for 'once' events; remains original/undefined for others
+          duration: durationInMinutes, // Duration converted to minutes
         };
       } catch (error) {
-        console.error(`Error converting fetched schedule time to local for entry:`, entry, error);
-        // Return the entry unmodified if conversion fails
-        return entry; 
+        console.error(`[fetchSchedule] Error converting schedule entry ID ${entry.id}:`, entry, error);
+        // Return entry with duration converted, but other fields as original if an error occurs
+        return { ...entry, duration: Math.round(entry.duration / 60) }; 
       }
     });
-
-    console.log('Fetched and converted schedule entries:', rawScheduleEntries);
-    return rawScheduleEntries;
 }
 
 // --- Timezone Conversion Helper --- 
