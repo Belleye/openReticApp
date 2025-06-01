@@ -169,7 +169,9 @@ const ScheduleViewer: React.FC = () => {
     schedule.forEach((entry, index) => {
       if (!entry.start) return; // Skip entries without start time
 
-      const title = `${getZoneName(entry.zone)} (${entry.duration} min)`;
+      // Convert duration from seconds to minutes for display
+      const durationInMinutes = Math.round(entry.duration * 1);
+      const title = `${getZoneName(entry.zone)} (${durationInMinutes} min)`;
       const [hours, minutes] = entry.start.split(':').map(Number);
       const eventId = `${entry.id || `temp-${index}`}`; // Use real ID if available, else temp
 
@@ -196,7 +198,7 @@ const ScheduleViewer: React.FC = () => {
             id: eventId, // Event ID for referencing
             title: title,
             startTime: entry.start, // 'HH:mm' format
-            duration: { minutes: entry.duration }, // Duration object
+            duration: { minutes: durationInMinutes }, // Use minutes for FullCalendar
             daysOfWeek: daysOfWeek, // Array of day numbers [0-6]
             extendedProps: { originalIndex: index, entryData: entry },
             backgroundColor: '#10B981', // Different color for recurring
@@ -212,7 +214,7 @@ const ScheduleViewer: React.FC = () => {
 
           if (matchesPattern) {
             const startDateTime = setSeconds(setMinutes(setHours(currentDate, hours), minutes), 0);
-            const endDateTime = addSeconds(startDateTime, entry.duration * 60);
+            const endDateTime = addSeconds(startDateTime, durationInMinutes * 60);
             generatedEvents.push({
               id: `${eventId}-${formatISO(currentDate, { representation: 'date' })}`,
               title: title,

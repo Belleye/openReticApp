@@ -93,11 +93,11 @@ export async function fetchSchedule(): Promise<ScheduleEntry[]> {
         // Convert duration from seconds (API) to minutes (PWA state)
         const durationInMinutes = Math.round(entry.duration / 60); // Or Math.floor/ceil as needed
 
-        // Return the entry with local time string and duration in minutes
+        // Return the entry with local time string and convert duration from seconds (API) to minutes (UI)
         return {
           ...entry,
           start: localStartTimeString,
-          duration: durationInMinutes, // Overwrite duration with minutes
+          duration: Math.round(entry.duration / 60), // Convert seconds to minutes for UI
           date: entry.date ? format(localDate, 'yyyy-MM-dd') : undefined // Ensure date reflects local day if needed
         };
       } catch (error) {
@@ -178,13 +178,11 @@ export async function saveFullSchedule(fullData: ScheduleData): Promise<void> {
             // formatInTimeZone(date, outputTimeZone, formatString)
             const utcStartTimeString = formatInTimeZone(localDate, 'UTC', 'HH:mm');
 
-            // Convert duration from minutes (PWA state) back to seconds (API)
-            const durationInSeconds = entry.duration * 60;
-
+            // Convert duration from minutes (UI) to seconds (API)
             return {
                 ...entry,
                 start: utcStartTimeString, // Use UTC HH:mm string
-                duration: durationInSeconds // Use duration in seconds
+                duration: entry.duration * 60 // Convert minutes to seconds for API
             };
         } catch (error) {
             console.error(`Error converting schedule time to UTC for saving entry:`, entry, error);

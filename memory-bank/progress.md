@@ -1,4 +1,4 @@
-# Progress Update (2025-04-29)
+# Progress Update (2025-06-01)
 
 ## What Works
 - Zone cards display correctly with real-time manual run status and controls.
@@ -18,6 +18,7 @@
   - `fetchSchedule` correctly reads from `/getSchedule`, converting UTC times to local and durations from seconds to minutes.
   - `saveFullSchedule` correctly writes the entire `{ schedule, system }` object to `/postSchedule`, converting local times to UTC and durations from minutes to seconds.
   - Add, Modify, and Delete actions in `ScheduleViewer` persist changes via the API using optimistic updates with rollback.
+  - Fixed duration display in calendar events to consistently show minutes throughout the UI while maintaining seconds in the API.
 
 ## What's Left / Next Steps
 - Implement schedule viewer and editor per PRD.
@@ -31,12 +32,12 @@
 - Responsive design is critical for mobile usability; Tailwind's responsive utilities are effective for rapid fixes.
 - Removing extra UI elements helps users focus on core controls.
 - FullCalendar integration provides good schedule visualization.
-- Correct time/duration conversions (`apiService`) are essential for API communication.
+- Correct time/duration conversions (`apiService`) are essential for API communication. The API expects durations in seconds while the UI displays them in minutes.
 - API endpoint `/postSchedule` requires the full `{ schedule, system }` payload for saving.
 
 ## Issues
 - No major blockers. All implemented features are working as intended in demo mode.
-- **New Potential Issue**: Events scheduled for Sunday may not be rendering correctly in the calendar view.
+- Fixed: Calendar events now correctly display duration in minutes instead of seconds.
 
 ## Decisions
 - Use context-based state for rapid prototyping and UI feedback.
@@ -44,4 +45,4 @@
 - Use optimistic UI updates for schedule modifications.
 
 ---
-This update reflects the current state of the openRetic PWA as of April 29, 2025.
+This update reflects the current state of the openRetic PWA as of June 1, 2025.

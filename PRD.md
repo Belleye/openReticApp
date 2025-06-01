@@ -29,12 +29,12 @@ openRetic is a Progressive Web App (PWA) that serves as a user interface for an 
 ### 1.1 Manual Control
 - Start/stop controls for each zone.
 - Visual indicators for currently active zones.
-- A modal dialog appears when a manual start is requested, allowing the user to specify the duration. default is 5 minutes.
+- A modal dialog appears when a manual start is requested, allowing the user to specify the duration in minutes (will be converted to seconds for the API). Default is 5 minutes (300 seconds).
 - The JSON payload is updated with these changes and sent to the ESP32 via the `/postSchedule` endpoint.
 
 ### 1.2 Snooze
 - A snooze button is available in the top-right corner of the dashboard.
-- When clicked, a modal dialog appears, allowing the user to specify the duration (in hours). default is 12 hours.
+- When clicked, a modal dialog appears, allowing the user to specify the duration in hours (will be converted to seconds for the API). Default is 12 hours (43200 seconds).
 - The JSON payload is updated with these changes and sent to the ESP32 via the `/postSchedule` endpoint.
 - The Snooze button should change to a countdown timer that shows the remaining duration.
 - If clicked again, the snooze should be cancelled and the button should return to its original state.
@@ -53,6 +53,13 @@ openRetic is a Progressive Web App (PWA) that serves as a user interface for an 
 - Display of current connection status.
 - Ability to add colloquial names to zones that will display in the calendar/scheduling view.
 - a button to save the colloquial names the ESP32. using the `/postSchedule` endpoint.
+
+## Data Format
+
+### Duration Units
+- All durations in the API are in seconds
+- The UI should display durations in appropriate units (minutes for zone runs, hours for snooze)
+- Conversion between units should be handled in the frontend code
 
 ### 3. Schedule Viewer
 - Calendar-based view of the irrigation schedule.
