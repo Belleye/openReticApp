@@ -18,13 +18,15 @@
   - `fetchSchedule` correctly reads from `/getSchedule`, converting UTC times to local and durations from seconds to minutes.
   - `saveFullSchedule` correctly writes the entire `{ schedule, system }` object to `/postSchedule`, converting local times to UTC and durations from minutes to seconds.
   - Add, Modify, and Delete actions in `ScheduleViewer` persist changes via the API using optimistic updates with rollback.
+  - Manual zone start/stop controls in `Dashboard.tsx` now fully integrated with the ESP32 API (`saveFullSchedule`), sending the complete system state.
+  - System snooze set/cancel controls in `Dashboard.tsx` now fully integrated with the ESP32 API (`saveFullSchedule`), sending the complete system state.
   - Fixed duration display in calendar events to consistently show minutes throughout the UI while maintaining seconds in the API.
 
 ## What's Left / Next Steps
-- Implement Settings page to manage zone colors and other preferences
-- Integrate with backend/ESP32 API for real device control (currently demo mode only)
-- Add tests for state logic and UI
-- *Consider replacing inline refresh messages with a toast/notification system*
+- **Implement Settings Page**: Allow customization of zone names/colors and ESP32 endpoint (see `plan_settings_page.md`).
+- ~~Integrate with backend/ESP32 API for real device control (currently demo mode only)~~ (Partially addressed: Dashboard manual controls and snooze are now integrated. Schedule execution by ESP32 still pending full validation).
+- Add tests for state logic and UI (especially for new Settings page).
+- *Consider replacing inline refresh messages with a toast/notification system.*
 
 ## Learnings
 - Timer-based state management (for snooze and manual runs) is robust and keeps UI in sync.
@@ -33,7 +35,7 @@
 - Removing extra UI elements helps users focus on core controls.
 - FullCalendar integration provides good schedule visualization.
 - Correct time/duration conversions (`apiService`) are essential for API communication. The API expects durations in seconds while the UI displays them in minutes.
-- API endpoint `/postSchedule` requires the full `{ schedule, system }` payload for saving.
+- API endpoint `/postSchedule` requires the full `{ schedule, system }` payload for all state changes (schedule, manual zone control, system snooze).
 - Zone color support has been added to the API and can be stored/retrieved successfully.
 
 ## Issues

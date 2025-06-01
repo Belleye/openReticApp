@@ -9,7 +9,7 @@
 ## Technical Patterns
 - Reactive state management using React hooks and Context API.
 - Timer-driven state logic for all time-based controls (manual runs, snooze), using setInterval and effect hooks.
-- RESTful API communication with the ESP32 using JSON payloads.
+- RESTful API communication with the ESP32 using JSON payloads. Key endpoint `/postSchedule` expects the full `ScheduleData` (system and schedule state) for any update.
 - Offline-first design with caching and error handling for network issues.
 - Responsive UI patterns using Tailwind's responsive utilities for navigation and controls.
 - FullCalendar used for interactive schedule visualization.
@@ -35,4 +35,4 @@
 
 ---
 
-**Last Updated:** 2025-04-29
+**Last Updated:** 2025-06-01

@@ -1,8 +1,9 @@
-# Active Context (2025-04-29)
+# Active Context (2025-06-01)
 
 ## Current Focus
-- Implementing Settings page to manage zone colors and other preferences
-- Adding tests for UI components, state logic, and API interactions
+- **Settings Page Implementation**: Design and build the settings page as outlined in `plan_settings_page.md`. This includes:
+  - Zone name and color customization (persisted to ESP32 via `saveFullSchedule`).
+  - ESP32 IP address/hostname configuration (persisted in `localStorage`).
 
 ## Recent Changes
 - Added support for zone colors in the API (stored in `system.zones[].color`)
@@ -26,30 +27,27 @@
   - Resolved issues with duration calculations in `EditScheduleModal` and `apiService`
 
 ## Next Steps
-1. **Settings Page Implementation**
-   - Create a new `/settings` route and page component
-   - Add color picker for each zone
-   - Implement save functionality to update zone colors via API
-   - Ensure color changes are reflected throughout the app
-   - Add validation for color inputs
+1.  **Implement Settings Page (see `plan_settings_page.md`)**
+    *   **Base Setup**: Create `SettingsPage.tsx`, add route, NavBar link.
+    *   **ESP32 Endpoint Config**: UI for IP/hostname, save to `localStorage`, update `apiService` to use stored value, test connection button.
+    *   **Zone Config**: UI for name/color editing per zone, save via `saveFullSchedule`.
+    *   Ensure responsive design and clear user feedback.
 
-2. **UI Updates**
-   - Update ScheduleViewer to use zone colors for events
-   - Ensure consistent color usage across all components
-   - Add visual feedback when colors are updated
+2.  **UI Updates (Post-Settings Implementation)**
+    *   Ensure `ScheduleViewer` uses updated zone colors for events.
+    *   Verify consistent color and name usage across all components.
 
-3. **Testing & Polish**
-   - Add tests for the new settings functionality
-   - Test color changes across different devices and themes
-   - Ensure proper error handling for API calls
-   - Add loading states for settings save operations
+3.  **Testing & Polish**
+    *   Add tests for settings functionality (UI and logic).
+    *   Thoroughly test API interactions for settings changes.
+    *   Test `localStorage` persistence for ESP32 endpoint.
 
 ## Active Decisions
 - Use timer-driven state updates for all time-based controls
 - UI surfaces only essential controls and feedback for clarity
 - Responsive design is mandatory for all navigation and control elements
 - Removing extra UI elements helps users focus on core controls
-- Use optimistic UI updates with error rollback for schedule modifications (`ScheduleViewer`)
+- Use optimistic UI updates with error rollback for schedule modifications (`ScheduleViewer`) and dashboard controls (manual zone start/stop, system snooze).
 - Context state (`connectionState`) effectively drives UI indicators (e.g., NavBar title suffix)
 - Zone colors will be stored in the existing `system.zones` array to maintain a single source of truth
 - Default colors will be provided for new zones but will be user-configurable
@@ -64,9 +62,10 @@
 - Passing original array indices via `extendedProps` in FullCalendar events simplifies linking calendar clicks back to source data for editing/deleting
 - Separating Add and Edit modals simplifies component logic, even with similar forms
 - Correct time (UTC/Local) and duration (Sec/Min) conversions between PWA state and API are crucial and now implemented in `apiService`
-- Debugging confirmed `saveFullSchedule` requires the full `{ schedule, system }` payload
+- Debugging confirmed `saveFullSchedule` requires the full `{ schedule, system }` payload for all state changes, including manual zone operations and system snooze.
 - Zone colors in the API should be stored as hex codes (e.g., "#3B82F6") for maximum compatibility with web standards
-- The ESP32 API successfully persists custom zone colors in the system.zones array
+- The ESP32 API successfully persists custom zone colors in the system.zones array.
+- Storing user-configurable ESP32 endpoint in `localStorage` is a viable approach for client-side persistence.
 
 ---
-This update reflects the current active context for the openRetic PWA as of April 29, 2025.
+This update reflects the current active context for the openRetic PWA as of June 1, 2025.
