@@ -42,12 +42,21 @@ const Dashboard = () => {
 
   // Update snooze countdown every second
   useEffect(() => {
-    if (!snoozeUntil) return;
-    const interval = setInterval(() => {
-      setSnoozeCountdown(getSnoozeCountdown(snoozeUntil));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [snoozeUntil]);
+    const currentSnoozeValue = getSnoozeCountdown(snoozeUntil);
+    setSnoozeCountdown(currentSnoozeValue); // Set immediately based on current snoozeUntil
+
+    if (currentSnoozeValue) { // Only set up interval if there's an active snooze
+      const interval = setInterval(() => {
+        const updatedCountdown = getSnoozeCountdown(snoozeUntil);
+        setSnoozeCountdown(updatedCountdown);
+        if (!updatedCountdown) { // Snooze expired or was cancelled (snoozeUntil changed)
+          clearInterval(interval);
+        }
+      }, 1000);
+      return () => clearInterval(interval); // Cleanup interval on unmount or if snoozeUntil changes
+    }
+    // No interval needed if currentSnoozeValue is null, and no active interval to clear if it wasn't set up.
+  }, [snoozeUntil]); // Re-run when snoozeUntil (derived from scheduleData.system.snooze_until) changes
 
   // Update manual countdowns every second
   useEffect(() => {
@@ -178,6 +187,36 @@ const Dashboard = () => {
     }
   };
 
+  // Cancel system snooze
+  const handleCancelSnooze = async () => {
+    const originalSnoozeUntil = scheduleData.system.snooze_until;
+    const updatedScheduleData: ScheduleData = {
+      ...scheduleData,
+      system: {
+        ...scheduleData.system,
+        snooze_until: null, // Cancel snooze by setting to null
+      },
+    };
+
+    setScheduleData(updatedScheduleData); // Optimistic update
+
+    try {
+      await saveFullSchedule(updatedScheduleData);
+      console.log('[Dashboard] System snooze cancelled and saved.');
+    } catch (error) {
+      console.error('[Dashboard] Failed to cancel snooze or save schedule:', error);
+      alert('Error: Could not cancel system snooze. Please check connection and try again.');
+      // Revert optimistic update
+      setScheduleData(prevData => ({
+        ...prevData,
+        system: {
+          ...prevData.system,
+          snooze_until: originalSnoozeUntil, // Revert to original snooze_until value
+        },
+      }));
+    }
+  };
+
   // --- Refresh logic ---
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -211,8 +250,8 @@ const Dashboard = () => {
 
   return (
     <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h2 className="font-semibold text-lg mb-4">Zones</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h2 className="font-semibold text-lg">Zones</h2>
         <button
           className="ml-4 p-2 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50 flex items-center"
           title="Refresh schedule"
@@ -232,6 +271,34 @@ const Dashboard = () => {
             </svg>
           )}
         </button>
+        {/* Snooze Button / Status / Cancel */}
+        <div>
+          {snoozeCountdown ? (
+            <button
+              className="p-2 rounded-md border flex items-center text-sm bg-red-500 hover:bg-red-600 text-white font-semibold"
+              title="Cancel system snooze"
+              onClick={handleCancelSnooze} // New handler
+            >
+              {/* Cancel Icon (example) */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+              </svg>
+              {snoozeCountdown} (Cancel Snooze)
+            </button>
+          ) : (
+            <button
+              className="p-2 rounded-md border border-gray-300 hover:bg-gray-100 flex items-center text-sm bg-yellow-400 hover:bg-yellow-500 text-yellow-800 font-semibold"
+              title="Snooze system"
+              onClick={() => setSnoozeModalOpen(true)}
+            >
+              {/* Snooze Icon (example) */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4.586l-1.707-1.707a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 9.586V5z" clipRule="evenodd" />
+              </svg>
+              Snooze System
+            </button>
+          )}
+        </div>
       </div>
       {refreshMsg && (
         <div
@@ -306,12 +373,27 @@ const Dashboard = () => {
       <SnoozeModal
         open={snoozeModalOpen}
         onClose={() => setSnoozeModalOpen(false)}
-        onSnooze={(hours) => {
+        onSnooze={async (hours) => {
           const until = new Date(Date.now() + hours * 3600000).toISOString();
-          setScheduleData({
+          const newScheduleData: ScheduleData = {
             ...scheduleData,
             system: { ...scheduleData.system, snooze_until: until },
-          });
+          };
+          setScheduleData(newScheduleData); // Optimistic update
+          try {
+            await saveFullSchedule(newScheduleData); // Send to backend
+            console.log('[Dashboard] System snooze updated and saved.');
+          } catch (error) {
+            console.error('[Dashboard] Failed to save snooze state:', error);
+            alert('Failed to save snooze. Please try again.');
+            // Revert optimistic update: set back to the state before this attempt
+            // This assumes scheduleData captured at the start of this handler is the correct one to revert to.
+            // For more complex scenarios, a deep copy of the original state might be needed before optimistic update.
+            setScheduleData(prevData => ({
+              ...prevData,
+              system: { ...prevData.system, snooze_until: scheduleData.system.snooze_until } // Revert snooze_until
+            })); 
+          }
         }}
       />
     </div>
