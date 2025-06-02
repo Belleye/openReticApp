@@ -194,26 +194,44 @@ export async function saveFullSchedule(fullData: ScheduleData): Promise<void> {
     // Convert local start times back to UTC HH:mm strings and duration back to seconds
     const scheduleForApi = scheduleEntries.map(entry => {
         try {
-            // Create a Date object representing the time in the local timezone
-            const [localHours, localMinutes] = entry.start.split(':').map(Number);
-            const baseDate = startOfDay(new Date()); // Use today as reference
-            const localDate = new Date( // This Date object represents local time
-                baseDate.getFullYear(),
-                baseDate.getMonth(),
-                baseDate.getDate(),
-                localHours,
-                localMinutes,
-                0
-            );
+            let apiDate = entry.date; // Default to original date, will be updated for 'once' events
+            let apiStartTime = entry.start; // Default to original start time
 
-            // Format this local time point directly into the UTC 'HH:mm' string
-            // formatInTimeZone(date, outputTimeZone, formatString)
-            const utcStartTimeString = formatInTimeZone(localDate, 'UTC', 'HH:mm');
+            if (entry.type === 'once' && entry.date && entry.start) {
+                // For 'once' events, entry.date is local date, entry.start is local time.
+                // Combine them into a single local datetime object, then convert to UTC date and UTC time.
+                const localEventDateTime = parse(`${entry.date} ${entry.start}`, 'yyyy-MM-dd HH:mm', new Date());
+                
+                apiDate = formatInTimeZone(localEventDateTime, 'UTC', 'yyyy-MM-dd');
+                apiStartTime = formatInTimeZone(localEventDateTime, 'UTC', 'HH:mm');
+                
+                // console.log(`[saveFullSchedule] Once Event (ID ${entry.id}): Local ${entry.date} ${entry.start} -> UTC Date: ${apiDate}, UTC Time: ${apiStartTime}`);
+            } else if (entry.start) {
+                // For other event types (weekday, daytype), entry.start is local time of day.
+                // This is the original logic for recurring events.
+                const [localHours, localMinutes] = entry.start.split(':').map(Number);
+                const baseDate = startOfDay(new Date()); // Use today as reference for time-only conversion
+                const localTimeReference = new Date(
+                    baseDate.getFullYear(),
+                    baseDate.getMonth(),
+                    baseDate.getDate(),
+                    localHours,
+                    localMinutes,
+                    0
+                );
+                apiStartTime = formatInTimeZone(localTimeReference, 'UTC', 'HH:mm');
+                // apiDate remains entry.date (original) for recurring events
+                // console.log(`[saveFullSchedule] Recurring Event (ID ${entry.id}): Local time ${entry.start} -> UTC time ${apiStartTime}`);
+            } else {
+                // console.warn(`[saveFullSchedule] Entry (ID ${entry.id}, Type ${entry.type}) has no start time, cannot convert to UTC. Original start: ${entry.start}`);
+                // apiStartTime remains entry.start (which could be undefined/null)
+                // apiDate remains entry.date (original)
+            }
 
-            // Convert duration from minutes (UI) to seconds (API)
             return {
                 ...entry,
-                start: utcStartTimeString, // Use UTC HH:mm string
+                date: apiDate, // Use the UTC-converted date for 'once' events, original for others
+                start: apiStartTime, // Use UTC HH:mm string for all converted times
                 duration: entry.duration * 60 // Convert minutes to seconds for API
             };
         } catch (error) {
