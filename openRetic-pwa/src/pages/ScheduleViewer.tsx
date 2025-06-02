@@ -273,6 +273,8 @@ const ScheduleViewer: React.FC = () => {
             slotMaxTime="24:00:00"
             height="auto"
             eventClick={handleEventClick}
+            dayHeaderFormat={{ weekday: 'short', day: 'numeric', month: 'short' }}
+            firstDay={1}
           />
         </div>
       )}

@@ -4,13 +4,21 @@ import { format, parse, setHours, setMinutes, setSeconds, startOfDay, parseISO }
 // Use toZonedTime for reading, formatInTimeZone for writing
 import { toZonedTime, formatInTimeZone } from 'date-fns-tz'; 
 
-// TODO: Determine the base URL/IP of the ESP32
-// This might come from context, configuration, or discovery
-const API_BASE_URL = 'http://openRetic.local'; // Placeholder
+const ENDPOINT_STORAGE_KEY = 'openretic_endpoint';
+const DEFAULT_API_BASE_URL = 'http://openRetic.local';
+
+function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(ENDPOINT_STORAGE_KEY) || DEFAULT_API_BASE_URL;
+  }
+  return DEFAULT_API_BASE_URL; // Fallback for non-browser environments (e.g., SSR, testing)
+}
 
 // Helper function for making API requests (can be expanded)
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const baseUrl = getApiBaseUrl();
+    const url = `${baseUrl}${endpoint}`;
+
     // Add logging for debugging
     console.log(`API Request: ${options.method || 'GET'} ${url}`, options.body ? `Body: ${options.body}` : '');
 
@@ -119,6 +127,19 @@ export async function fetchSchedule(): Promise<ScheduleEntry[]> {
     });
 }
 
+// Function to test API connection
+export async function testApiConnection(): Promise<boolean> {
+    try {
+        // Use a simple GET request, e.g., fetching the schedule, as a health check.
+        // The actual data isn't used here, just the success of the request.
+        await apiRequest<ApiScheduleResponse>('/getSchedule');
+        return true; // Connection successful
+    } catch (error) {
+        console.error('API connection test failed:', error);
+        return false; // Connection failed
+    }
+}
+
 // --- Timezone Conversion Helper --- 
 
 // Helper function to convert local time string (HH:mm) to UTC HH:mm string
@@ -162,6 +183,9 @@ const convertScheduleToUTC = (schedule: ScheduleEntry): ScheduleEntry => {
  * @returns Promise<void> or Promise<ScheduleEntry[]> if the backend echoes the saved schedule.
  */
 export async function saveFullSchedule(fullData: ScheduleData): Promise<void> {
+    // Ensure getApiBaseUrl() is called within functions that need it, 
+    // so it's fresh if the user changes it on the settings page.
+    // The apiRequest function already does this.
     console.log('Preparing to save full schedule data:', fullData);
     
     // Extract schedule entries for processing
