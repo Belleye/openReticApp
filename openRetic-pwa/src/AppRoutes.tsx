@@ -13,7 +13,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 const AppRoutes = () => (
-  <Router>
+  <Router basename="/openReticApp">
     <AppLayout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
