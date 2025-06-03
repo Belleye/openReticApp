@@ -1,0 +1,38 @@
+# .github/workflows/deploy.yml
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Or master, or whichever branch you use for production
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 🟢
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Or your preferred Node.js version
+
+      - name: Install dependencies 📦
+        # Navigate to the pwa directory before installing dependencies
+        run: cd openRetic-pwa && npm install
+
+      - name: Build project 🏗️
+        # Navigate to the pwa directory before building
+        run: cd openRetic-pwa && npm run build # This runs 'tsc -b && vite build'
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./openRetic-pwa/dist # Ensure this path is correct
+          # publish_branch: gh-pages # Default is gh-pages
+          # user_name: 'github-actions[bot]' # Optional
+          # user_email: 'github-actions[bot]@users.noreply.github.com' # Optional
+          # commit_message: 'Deploy to GitHub Pages' # Optional
