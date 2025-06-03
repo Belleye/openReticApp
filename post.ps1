@@ -70,6 +70,30 @@ $body = @"
         "Sun"
       ],
       "id": "1748753543828"
+    },
+    {
+      "zone": 4,
+      "type": "daytype",
+      "start": "05:00",
+      "duration": 900,
+      "pattern": "odd",
+      "id": "1748921334196"
+    },
+    {
+      "zone": 1,
+      "type": "once",
+      "start": "22:00",
+      "duration": 900,
+      "date": "2025-06-05",
+      "id": "1748921363948"
+    },
+    {
+      "zone": 1,
+      "type": "once",
+      "start": "22:00",
+      "duration": 900,
+      "date": "2025-06-01",
+      "id": "1748921378724"
     }
   ],
   "system": {
@@ -85,7 +109,7 @@ $body = @"
       },
       {
         "id": 2,
-        "name": "Back Yard",
+        "name": "Back Yard Lawn",
         "active": false,
         "manual_until": null,
         "color": "#10B981"
@@ -99,31 +123,31 @@ $body = @"
       },
       {
         "id": 4,
-        "name": "Side Yard",
+        "name": "Cat Run",
         "active": false,
         "manual_until": null,
-        "color": "#8B5CF6"
+        "color": "#6366F1"
       },
       {
         "id": 5,
-        "name": "Flower Beds",
+        "name": "Native Garden",
         "active": false,
         "manual_until": null,
         "color": "#EC4899"
       },
       {
         "id": 6,
-        "name": "Vegetable Garden",
+        "name": "Vegie Garden Lawn",
         "active": false,
         "manual_until": null,
-        "color": "#06B6D4"
+        "color": "#8B5CF6"
       },
       {
         "id": 7,
-        "name": "Patio Plants",
+        "name": "Patio Lawn",
         "active": false,
         "manual_until": null,
-        "color": "#EF4444"
+        "color": "#D97706"
       }
     ]
   }
